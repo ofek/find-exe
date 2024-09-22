@@ -1,0 +1,65 @@
+[build-system]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
+[project]
+name = "find-exe"
+dynamic = ["version"]
+description = "Find matching executables"
+readme = "README.md"
+requires-python = ">=3.8"
+license = "MIT"
+keywords = [
+  "binary",
+  "cli",
+  "executable",
+  "path",
+  "which",
+]
+authors = [
+  { name = "Ofek Lev", email = "oss@ofek.dev" },
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Programming Language :: Python :: Implementation :: PyPy",
+]
+
+[project.urls]
+Homepage = "https://ofek.dev/find-exe/"
+Sponsor = "https://github.com/sponsors/ofek"
+Changelog = "https://ofek.dev/find-exe/changelog/"
+Tracker = "https://github.com/ofek/find-exe/issues"
+Source = "https://github.com/ofek/find-exe"
+
+[project.scripts]
+find-exe = "find_exe.cli:main"
+
+[tool.hatch.version]
+source = "vcs"
+
+[tool.coverage.run]
+source_pkgs = ["find_exe", "tests"]
+branch = true
+parallel = true
+omit = [
+  "src/find_exe/__about__.py",
+]
+
+[tool.coverage.paths]
+find_exe = ["src/find_exe", "*/find-exe/src/find_exe"]
+tests = ["tests", "*/find-exe/tests"]
+
+[tool.coverage.report]
+show_missing = true
+exclude_lines = [
+  "no cov",
+  "if __name__ == .__main__.:",
+  "if TYPE_CHECKING:",
+]
