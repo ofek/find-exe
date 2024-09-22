@@ -1,0 +1,8 @@
+extend = "ruff_defaults.toml"
+
+[format]
+preview = true
+quote-style = "single"
+
+[lint]
+preview = true
