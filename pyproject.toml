@@ -49,7 +49,7 @@ source_pkgs = ["find_exe", "tests"]
 branch = true
 parallel = true
 omit = [
-  "src/find_exe/__about__.py",
+  "src/find_exe/__main__.py",
 ]
 
 [tool.coverage.paths]
