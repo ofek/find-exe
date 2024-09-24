@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Fixed:***
+
+- Fix potential case sensitivity issue on Windows when `PATHEXT` is defined explicitly
+
 ## 0.2.0 - 2024-09-24
 
 ***Added:***

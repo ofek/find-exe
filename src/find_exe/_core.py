@@ -122,12 +122,12 @@ if sys.platform == 'win32':
         global EXECUTABLE_EXTENSIONS  # noqa: PLW0603
         if EXECUTABLE_EXTENSIONS is None:
             pathext = os.environ.get('PATHEXT') or '.COM;.EXE;.BAT;.CMD;.VBS;.JS;.WS;.MSC'
-            EXECUTABLE_EXTENSIONS = tuple(ext for ext in pathext.split(os.pathsep) if ext)
+            EXECUTABLE_EXTENSIONS = tuple(ext for ext in pathext.casefold().split(os.pathsep) if ext)
 
         return EXECUTABLE_EXTENSIONS
 
     def valid_executable(file_name: str) -> bool:
-        return file_name.upper().endswith(_get_executable_extensions())
+        return file_name.casefold().endswith(_get_executable_extensions())
 
     def path_fallback() -> str:
         return os.defpath
