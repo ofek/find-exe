@@ -12,59 +12,87 @@ if TYPE_CHECKING:
     from collections.abc import Callable
 
 
-def with_prefix(prefix: str, *, mode: int = os.F_OK | os.X_OK, path: str | None = None) -> list[str]:
+def with_prefix(
+    prefix: str,
+    *,
+    paths: list[str] | None = None,
+    path: str | None = None,
+    mode: int = os.F_OK | os.X_OK,
+) -> list[str]:
     """
     Parameters:
         prefix: The prefix used for searching.
+        paths: The list of paths to check. If `None`, the mutually exclusive `path` parameter is used.
+        path: The PATH to check, with each path separated by [`os.pathsep`][]. If `None`, the PATH environment
+            variable is used. Mutually exclusive with `paths`.
         mode: The file mode used for checking access.
-        path: The PATH to check. If `None`, the PATH environment variable is used.
 
     Returns:
-        A list of absolute paths to executables that match the given prefix.
+        A list of absolute paths to executables that start with the given prefix.
     """
-    return with_condition(lambda entry: entry.name.startswith(prefix), mode=mode, path=path)
+    return with_condition(lambda entry: entry.name.startswith(prefix), paths=paths, path=path, mode=mode)
 
 
 def with_pattern(
-    pattern: str | re.Pattern[str], *, mode: int = os.F_OK | os.X_OK, path: str | None = None
+    pattern: str | re.Pattern[str],
+    *,
+    paths: list[str] | None = None,
+    path: str | None = None,
+    mode: int = os.F_OK | os.X_OK,
 ) -> list[str]:
     """
     Parameters:
         pattern: The pattern used for searching.
+        paths: The list of paths to check. If `None`, the mutually exclusive `path` parameter is used.
+        path: The PATH to check, with each path separated by [`os.pathsep`][]. If `None`, the PATH environment
+            variable is used. Mutually exclusive with `paths`.
         mode: The file mode used for checking access.
-        path: The PATH to check. If `None`, the PATH environment variable is used.
 
     Returns:
         A list of absolute paths to executables that match the given pattern.
     """
-    return with_condition(lambda entry: re.search(pattern, entry.name) is not None, mode=mode, path=path)
+    return with_condition(lambda entry: re.search(pattern, entry.name) is not None, paths=paths, path=path, mode=mode)
 
 
 def with_condition(
-    condition: Callable[[os.DirEntry], bool], *, mode: int = os.F_OK | os.X_OK, path: str | None = None
+    condition: Callable[[os.DirEntry], bool],
+    *,
+    paths: list[str] | None = None,
+    path: str | None = None,
+    mode: int = os.F_OK | os.X_OK,
 ) -> list[str]:
     """
     Parameters:
         condition: The condition used for searching.
+        paths: The list of paths to check. If `None`, the mutually exclusive `path` parameter is used.
+        path: The PATH to check, with each path separated by [`os.pathsep`][]. If `None`, the PATH environment
+            variable is used. Mutually exclusive with `paths`.
         mode: The file mode used for checking access.
-        path: The PATH to check. If `None`, the PATH environment variable is used.
 
     Returns:
-        A list of absolute paths to executables that match the given pattern.
+        A list of absolute paths to executables that satisfy the given condition.
     """
-    if path is None:
+
+    search_paths: list[str] = []
+    if paths is not None:
+        if path is not None:
+            message = 'the `paths` and `path` parameters are mutually exclusive'
+            raise ValueError(message)
+
+        search_paths[:] = paths
+    elif path is not None:
+        search_paths[:] = path.split(os.pathsep)
+    else:
         path = os.environ.get('PATH', None)
         if path is None:
             path = path_fallback()
 
-    executables: list[str] = []
-    if not path:
-        return executables
+        search_paths[:] = path.split(os.pathsep)
 
-    search_paths = path.split(os.pathsep)
+    executables: list[str] = []
     seen = set()
     for search_path in search_paths:
-        if not os.path.isdir(search_path):
+        if not (search_path and os.path.isdir(search_path)):
             continue
 
         norm_path = os.path.normcase(search_path)

@@ -44,3 +44,21 @@ def test_duplicate_path(monkeypatch) -> None:
     exe_name = os.path.basename(sys.executable)
     monkeypatch.setenv('PATH', f'{exe_dir}{os.pathsep}{exe_dir}')
     assert find_exe.with_condition(lambda entry: entry.name == exe_name) == [sys.executable]
+
+
+class TestExplicitSearchPaths:
+    def test_mutual_exclusion(self) -> None:
+        with pytest.raises(ValueError, match='the `paths` and `path` parameters are mutually exclusive'):
+            find_exe.with_condition(bool, paths=[], path='')
+
+    def test_list(self) -> None:
+        exe_dir = os.path.dirname(sys.executable)
+        exe_name = os.path.basename(sys.executable)
+        paths = [exe_dir, exe_dir]
+        assert find_exe.with_condition(lambda entry: entry.name == exe_name, paths=paths) == [sys.executable]
+
+    def test_string(self) -> None:
+        exe_dir = os.path.dirname(sys.executable)
+        exe_name = os.path.basename(sys.executable)
+        path = f'{exe_dir}{os.pathsep}{exe_dir}'
+        assert find_exe.with_condition(lambda entry: entry.name == exe_name, path=path) == [sys.executable]
