@@ -46,6 +46,8 @@ theme:
 nav:
   - About: index.md
   - API: api.md
+  - Recipes:
+      - Using the login shell PATH in non-interactive environments: recipes/login_shell_path.md
   - Meta:
     - Changelog: changelog.md
 
